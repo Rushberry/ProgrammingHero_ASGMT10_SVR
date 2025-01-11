@@ -26,9 +26,22 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-
+        const database = client.db("chillGameDB");
+        const gamerBase = database.collection("games");
         app.get('/', (req, res) => {
-            res.send('Chill Gamer: A Game Review Application')
+            res.send('Chill Gamer: A Game Review Application Server')
+        })
+
+        app.post('/addReview', async (req, res) => {
+            const response = req.body;
+            console.log(response)
+            const result = await gamerBase.insertOne(response)
+            res.send(result)
+        })
+
+        app.get('/reviews', async (req, res) => {
+            const result = await gamerBase.find().toArray()
+            res.send(result)
         })
 
         await client.db("admin").command({ ping: 1 });
