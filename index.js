@@ -44,6 +44,32 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/highRated', async (req, res) => {
+            const result = await gamerBase.find().sort({rating: -1}).limit(6).toArray()
+            res.send(result)
+        })
+
+        app.get('/latest', async (req, res) => {
+            const result = await gamerBase.find().sort({publishedDate: -1}).limit(3).toArray()
+            res.send(result)
+        })
+
+        app.get('/adventure', async (req, res) => {
+            const query = { genres: "Adventure" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/rpg', async (req, res) => {
+            const query = { genres: "RPG" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/action', async (req, res) => {
+            const query = { genres: "Action" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
