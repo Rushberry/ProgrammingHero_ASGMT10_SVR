@@ -28,6 +28,7 @@ async function run() {
         await client.connect();
         const database = client.db("chillGameDB");
         const gamerBase = database.collection("games");
+
         app.get('/', (req, res) => {
             res.send('Chill Gamer: A Game Review Application Server')
         })
@@ -39,18 +40,25 @@ async function run() {
             res.send(result)
         })
 
+        app.post('/myReviews', async (req, res) => { 
+            const email = req.body;
+            const query = email;
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+
         app.get('/reviews', async (req, res) => {
             const result = await gamerBase.find().toArray()
             res.send(result)
         })
 
         app.get('/highRated', async (req, res) => {
-            const result = await gamerBase.find().sort({rating: -1}).limit(6).toArray()
+            const result = await gamerBase.find().sort({ rating: -1 }).limit(6).toArray()
             res.send(result)
         })
 
         app.get('/latest', async (req, res) => {
-            const result = await gamerBase.find().sort({publishedDate: -1}).limit(3).toArray()
+            const result = await gamerBase.find().sort({ publishedDate: -1 }).limit(3).toArray()
             res.send(result)
         })
 
