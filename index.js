@@ -30,10 +30,51 @@ async function run() {
         const gamerBase = database.collection("games");
         const watchListBase = database.collection("watchList");
 
+        // GET APIS
         app.get('/', (req, res) => {
             res.send('Chill Gamer: A Game Review Application Server')
         })
 
+        app.get('/reviews', async (req, res) => {
+            const result = await gamerBase.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/highRated', async (req, res) => {
+            const result = await gamerBase.find().sort({ rating: -1 }).limit(6).toArray()
+            res.send(result)
+        })
+        
+        
+        app.get('/latest', async (req, res) => {
+            const result = await gamerBase.find().sort({ publishedDate: -1 }).limit(3).toArray()
+            res.send(result)
+        })
+        
+        app.get('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+        
+        app.get('/adventure', async (req, res) => {
+            const query = { genres: "Adventure" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/rpg', async (req, res) => {
+            const query = { genres: "RPG" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/action', async (req, res) => {
+            const query = { genres: "Action" }
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+
+        // POST APIS
         app.post('/addReview', async (req, res) => {
             const response = req.body;
             const result = await gamerBase.insertOne(response)
@@ -59,30 +100,8 @@ async function run() {
             const result = await watchListBase.insertOne(response)
             res.send(result)
         })
-
-        app.get('/reviews', async (req, res) => {
-            const result = await gamerBase.find().toArray()
-            res.send(result)
-        })
-
-        app.get('/highRated', async (req, res) => {
-            const result = await gamerBase.find().sort({ rating: -1 }).limit(6).toArray()
-            res.send(result)
-        })
-
-
-        app.get('/latest', async (req, res) => {
-            const result = await gamerBase.find().sort({ publishedDate: -1 }).limit(3).toArray()
-            res.send(result)
-        })
-
-        app.get('/review/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await gamerBase.find(query).toArray()
-            res.send(result)
-        })
-
+        
+        // PUT APIS
         app.put('/updateReview/:id', async (req, res) => {
             const game = req.body;
             const id = req.params.id;
@@ -101,31 +120,18 @@ async function run() {
             const result = await gamerBase.updateOne(filter, updatedGame, options)
             res.send(result)
         })
-
-        app.get('/adventure', async (req, res) => {
-            const query = { genres: "Adventure" }
-            const result = await gamerBase.find(query).toArray()
-            res.send(result)
-        })
-        app.get('/rpg', async (req, res) => {
-            const query = { genres: "RPG" }
-            const result = await gamerBase.find(query).toArray()
-            res.send(result)
-        })
-        app.get('/action', async (req, res) => {
-            const query = { genres: "Action" }
-            const result = await gamerBase.find(query).toArray()
-            res.send(result)
-        })
-
+        
+        
+        // Delete APIS
         app.delete('/delete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await gamerBase.deleteOne(query);
             res.send(result)
         })
+
         // await client.db("admin").command({ ping: 1 });
-        console.log("Connected to MongoDB <3");
+        // console.log("Connected to MongoDB <3");
     } finally {
         // await client.close();
     }
