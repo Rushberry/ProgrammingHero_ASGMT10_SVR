@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 1500;
 
 // Middleware
@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
         const database = client.db("chillGameDB");
         const gamerBase = database.collection("games");
 
@@ -35,12 +35,11 @@ async function run() {
 
         app.post('/addReview', async (req, res) => {
             const response = req.body;
-            console.log(response)
             const result = await gamerBase.insertOne(response)
             res.send(result)
         })
 
-        app.post('/myReviews', async (req, res) => { 
+        app.post('/myReviews', async (req, res) => {
             const email = req.body;
             const query = email;
             const result = await gamerBase.find(query).toArray()
@@ -57,8 +56,34 @@ async function run() {
             res.send(result)
         })
 
+
         app.get('/latest', async (req, res) => {
             const result = await gamerBase.find().sort({ publishedDate: -1 }).limit(3).toArray()
+            res.send(result)
+        })
+
+        app.get('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await gamerBase.find(query).toArray()
+            res.send(result)
+        })
+
+        app.put('/updateReview/:id', async (req, res) => {
+            const game = req.body;
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const updatedGame = {
+                $set: {
+                    thumbnail: game.thumbnail,
+                    gameName: game.gameName,
+                    rating: game.rating,
+                    publishedDate: game.publishedDate,
+                    genres: game.genres,
+                }
+            }
+            const result = await gamerBase.updateOne(filter, updatedGame, options)
             res.send(result)
         })
 
@@ -78,8 +103,14 @@ async function run() {
             res.send(result)
         })
 
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        app.delete('/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await gamerBase.deleteOne(query);
+            res.send(result)
+        })
+        // await client.db("admin").command({ ping: 1 });
+        console.log("Connected to MongoDB <3");
     } finally {
         // await client.close();
     }
