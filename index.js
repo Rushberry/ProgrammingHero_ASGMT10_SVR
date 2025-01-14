@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ServerDescription } = require('mongodb');
 const port = process.env.PORT || 1500;
 
 // Middleware
@@ -95,6 +95,7 @@ async function run() {
                     rating: game.rating,
                     publishedDate: game.publishedDate,
                     genres: game.genres,
+                    description: game.description,
                 }
             }
             const result = await gamerBase.updateOne(filter, updatedGame, options)
